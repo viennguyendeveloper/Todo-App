@@ -1,17 +1,17 @@
-import axios from 'axios';
-import React, { createContext, useState, useEffect, ReactNode } from 'react';
-
-interface Task {
-  id: number;
-  title: string;
-  completed: boolean;
-}
+import React, { createContext, useState, useEffect, ReactNode } from "react";
+import {
+  loadTasksFromLocalStorage,
+  saveTasksToLocalStorage,
+} from "../utils/storageUtils";
+import { fetchTasks } from "../services/taskService";
+import { Task } from "../types";
 
 interface TaskContextType {
   tasks: Task[];
   addTask: (task: Task) => void;
   toggleTaskCompletion: (id: number) => void;
   deleteTask: (id: number) => void;
+  isLoading: boolean;
 }
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -22,25 +22,21 @@ interface TaskProviderProps {
 
 export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
-
-  const saveTasksToLocalStorage = (tasks: Task[]) => {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-  };
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    const storedTasks = localStorage.getItem("tasks");
-    if (storedTasks) {
-      setTasks(JSON.parse(storedTasks));
+    const storedTasks = loadTasksFromLocalStorage();
+    if (storedTasks.length) {
+      setTasks(storedTasks);
     } else {
-      axios
-        .get("https://jsonplaceholder.typicode.com/todos?_limit=5")
-        .then((response) => {
-          setTasks(response.data);
-          saveTasksToLocalStorage(response.data);
-        })
-        .catch((error) => {
-          console.error("There was an error fetching tasks:", error);
-        });
+      const fetchAndSetTasks = async () => {
+        setIsLoading(true);
+        const fetchedTasks = await fetchTasks();
+        setTasks(fetchedTasks);
+        saveTasksToLocalStorage(fetchedTasks);
+        setIsLoading(false);
+      };
+      fetchAndSetTasks();
     }
   }, []);
 
@@ -66,7 +62,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
 
   return (
     <TaskContext.Provider
-      value={{ tasks, addTask, toggleTaskCompletion, deleteTask }}
+      value={{ tasks, addTask, toggleTaskCompletion, deleteTask, isLoading }}
     >
       {children}
     </TaskContext.Provider>

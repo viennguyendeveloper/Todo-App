@@ -3,12 +3,7 @@ import { useTasks } from "../context/useTasks";
 import { CheckIcon } from "../icons/Check";
 import { CircleIcon } from "../icons/Circle";
 import { TrashIcon } from "../icons/Trash";
-
-interface Task {
-  id: number;
-  title: string;
-  completed: boolean;
-}
+import { Task } from "../types";
 
 interface TaskItemProps {
   task: Task;
