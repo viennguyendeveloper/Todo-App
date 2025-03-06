@@ -1,26 +1,21 @@
 import React, { useState } from "react";
+import { useTasks } from "../context/useTasks";
 import { PlusIcon } from "../icons/Plus";
 
-interface AddTaskFormProps {
-  addTask: (newTask: { title: string; completed: boolean }) => void;
-}
-
-const AddTaskForm: React.FC<AddTaskFormProps> = ({ addTask }) => {
+const AddTaskForm: React.FC = () => {
+  const { addTask } = useTasks();
   const [taskTitle, setTaskTitle] = useState<string>("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (taskTitle.trim()) {
-      addTask({ title: taskTitle, completed: false });
+      addTask({ id: Date.now(), title: taskTitle, completed: false });
       setTaskTitle("");
     }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex items-center space-x-4 p-4"
-    >
+    <form onSubmit={handleSubmit} className="flex items-center space-x-4 w-full max-w-xl bg-white p-6 rounded-lg shadow-lg">
       <input
         type="text"
         value={taskTitle}

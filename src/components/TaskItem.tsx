@@ -1,7 +1,8 @@
 import React from "react";
-import { TrashIcon } from "../icons/Trash";
+import { useTasks } from "../context/useTasks";
 import { CheckIcon } from "../icons/Check";
 import { CircleIcon } from "../icons/Circle";
+import { TrashIcon } from "../icons/Trash";
 
 interface Task {
   id: number;
@@ -11,15 +12,11 @@ interface Task {
 
 interface TaskItemProps {
   task: Task;
-  toggleTaskCompletion: (id: number) => void;
-  deleteTask: (id: number) => void;
 }
 
-const TaskItem: React.FC<TaskItemProps> = ({
-  task,
-  toggleTaskCompletion,
-  deleteTask,
-}) => {
+const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
+  const { toggleTaskCompletion, deleteTask } = useTasks();
+
   return (
     <li
       className={`flex items-center justify-between p-4 mb-2 rounded-lg shadow-lg 
@@ -35,11 +32,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
         className="cursor-pointer flex items-center space-x-2"
       >
         <div className="w-6 h-6">
-          {task.completed ? (
-            <CheckIcon />
-          ) : (
-            <CircleIcon />
-          )}
+          {task.completed ? <CheckIcon /> : <CircleIcon />}
         </div>
         <span>{task.title}</span>
       </span>
