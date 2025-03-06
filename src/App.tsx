@@ -12,32 +12,46 @@ interface Task {
 const App: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
 
+  const saveTasksToLocalStorage = (tasks: Task[]) => {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  };
+
   useEffect(() => {
-    axios
-      .get("https://jsonplaceholder.typicode.com/todos?_limit=5")
-      .then((response) => {
-        setTasks(response.data);
-      })
-      .catch((error) => {
-        console.error("There was an error fetching tasks:", error);
-      });
+    const storedTasks = localStorage.getItem("tasks");
+    if (storedTasks) {
+      setTasks(JSON.parse(storedTasks));
+    } else {
+      axios
+        .get("https://jsonplaceholder.typicode.com/todos?_limit=5")
+        .then((response) => {
+          setTasks(response.data);
+          saveTasksToLocalStorage(response.data);
+        })
+        .catch((error) => {
+          console.error("There was an error fetching tasks:", error);
+        });
+    }
   }, []);
 
   const addTask = (newTask: { title: string; completed: boolean }) => {
     const newTaskWithId = { ...newTask, id: Date.now() };
-    setTasks([...tasks, newTaskWithId]);
+    const updatedTasks = [...tasks, newTaskWithId];
+    setTasks(updatedTasks);
+    saveTasksToLocalStorage(updatedTasks);
   };
 
   const toggleTaskCompletion = (id: number) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
+    const updatedTasks = tasks.map((task) =>
+      task.id === id ? { ...task, completed: !task.completed } : task
     );
+    setTasks(updatedTasks);
+    saveTasksToLocalStorage(updatedTasks);
   };
 
   const deleteTask = (id: number) => {
-    setTasks(tasks.filter((task) => task.id !== id));
+    const updatedTasks = tasks.filter((task) => task.id !== id);
+    setTasks(updatedTasks);
+    saveTasksToLocalStorage(updatedTasks);
   };
 
   return (
