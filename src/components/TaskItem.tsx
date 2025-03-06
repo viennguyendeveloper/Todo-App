@@ -25,7 +25,8 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
             ? "bg-green-100 text-green-700 line-through"
             : "bg-white text-gray-800"
         }
-        hover:bg-green-50 hover:scale-105 transition-all duration-200 ease-in-out`}
+        hover:bg-green-50 hover:scale-105 transform transition-transform duration-700 ease-in-out`}
+        style={{ animation: "fadeIn 0.3s forwards" }}
     >
       <span
         onClick={() => toggleTaskCompletion(task.id)}
